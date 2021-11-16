@@ -34,12 +34,19 @@ You will need a machine capable of running Linux, with VMX virtualization featur
 3. Clone the above forked repository
 
 4. Build the cloned linux kernel and install missing packages such as:
+
    sudo apt install gcc
+   
    sudo apt install flex
+   
    sudo apt install bison
+   
    sudo apt-get install libssl-dev
+   
    sudo apt-get install libelf-dev
+   
    sudo apt-get install dwarves
+   
 
 5. Reboot the machine
 
