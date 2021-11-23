@@ -88,6 +88,7 @@ sudo virt-manager
 8. Run commands:
 
 cpuid --leaf=0x4FFFFFFFF
+
 cpuid --leaf=0x4FFFFFFFE
 
 
