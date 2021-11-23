@@ -25,12 +25,18 @@
 #include "trace.h"
 #include "pmu.h"
 
+u32 total_exits = 0;
+EXPORT_SYMBOL(total_exits);
+u64 total_time_all_exits = 0;
+EXPORT_SYMBOL(total_time_all_exits);
+
 /*
  * Unlike "struct cpuinfo_x86.x86_capability", kvm_cpu_caps doesn't need to be
  * aligned to sizeof(unsigned long) because it's not accessed via bitops.
  */
 u32 kvm_cpu_caps[NR_KVM_CPU_CAPS] __read_mostly;
 EXPORT_SYMBOL_GPL(kvm_cpu_caps);
+
 
 static u32 xstate_required_size(u64 xstate_bv, bool compacted)
 {
@@ -1230,16 +1236,34 @@ bool kvm_cpuid(struct kvm_vcpu *vcpu, u32 *eax, u32 *ebx,
 }
 EXPORT_SYMBOL_GPL(kvm_cpuid);
 
+
+
 int kvm_emulate_cpuid(struct kvm_vcpu *vcpu)
 {
 	u32 eax, ebx, ecx, edx;
-
+	
+	
 	if (cpuid_fault_enabled(vcpu) && !kvm_require_cpl(vcpu, 0))
 		return 1;
 
 	eax = kvm_rax_read(vcpu);
 	ecx = kvm_rcx_read(vcpu);
-	kvm_cpuid(vcpu, &eax, &ebx, &ecx, &edx, false);
+	if(eax==0x4fffffff){
+		eax = total_exits;
+		printk("Total number of exits are: %d", eax);
+	}
+	else if(eax==0x4ffffffe)
+	{
+		u64 temp = 0;
+		temp = total_time_all_exits;
+		ebx = temp >> 32;
+		ecx = temp & 0xffffffff;
+		edx = 0;
+	}
+	else
+	{
+		kvm_cpuid(vcpu, &eax, &ebx, &ecx, &edx, false);
+	}
 	kvm_rax_write(vcpu, eax);
 	kvm_rbx_write(vcpu, ebx);
 	kvm_rcx_write(vcpu, ecx);
