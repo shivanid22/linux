@@ -94,7 +94,16 @@ cpuid --leaf=0x4FFFFFFFE
 
 #### Output:
 
+cpuid --leaf=0x4FFFFFFFF
+
+dmesg
+
 ![alt text](https://github.com/shivanid22/linux/blob/master/CMPE%20283%20-%20Assignment%202/Total%20exits%20(1).png)
+
+
+cpuid --leaf=0x4FFFFFFFE
+
+![alt text](https://github.com/shivanid22/linux/blob/master/CMPE%20283%20-%20Assignment%202/cycle%20time.PNG)
 
 
 
