@@ -92,7 +92,7 @@ cpuid --leaf=0x4FFFFFFFE
 
 
 
-#### Output:
+### Output:
 
 cpuid --leaf=0x4FFFFFFFF
 
