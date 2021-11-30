@@ -25,10 +25,18 @@
 #include "trace.h"
 #include "pmu.h"
 
-u32 total_exits = 0;
-EXPORT_SYMBOL(total_exits);
-u64 total_time_all_exits = 0;
-EXPORT_SYMBOL(total_time_all_exits);
+u64 net_exit_time = 0;
+EXPORT_SYMBOL(net_exit_time);
+atomic_t exit_count=ATOMIC_INIT(0);
+EXPORT_SYMBOL(exit_count);	
+atomic_t exit_reason_arr[70]=ATOMIC_INIT(0);
+EXPORT_SYMBOL(exit_reason_arr);
+
+atomic_long_t total_exit_time = ATOMIC_INIT(0);
+EXPORT_SYMBOL(total_exit_time);
+
+atomic_long_t exit_time[70] = ATOMIC_INIT(0);
+EXPORT_SYMBOL(exit_time);
 
 /*
  * Unlike "struct cpuinfo_x86.x86_capability", kvm_cpu_caps doesn't need to be
@@ -1249,20 +1257,581 @@ int kvm_emulate_cpuid(struct kvm_vcpu *vcpu)
 	eax = kvm_rax_read(vcpu);
 	ecx = kvm_rcx_read(vcpu);
 	if(eax==0x4fffffff){
-		eax = total_exits;
-		printk("Total number of exits are: %d", eax);
+   		
+		eax=atomic_read(&exit_count);
+		printk(KERN_INFO "Exit count : %u", eax);
+		
+    	} else if(eax == 0x4ffffffd) {
+		switch(ecx) {
+			case 0: eax = atomic_read(&exit_reason_arr[0]);
+				break;
+			case 1: eax = atomic_read(&exit_reason_arr[1]);
+				break;
+			case 2: eax = atomic_read(&exit_reason_arr[2]);
+				break;
+			case 7: eax = atomic_read(&exit_reason_arr[7]);
+				break;
+			case 8: eax = atomic_read(&exit_reason_arr[8]);
+				break;
+			case 9: eax = atomic_read(&exit_reason_arr[9]);
+				break;
+			case 10: eax = atomic_read(&exit_reason_arr[10]);
+				 break;
+			case 12: eax = atomic_read(&exit_reason_arr[12]);
+				 break;
+			case 13: eax = atomic_read(&exit_reason_arr[13]);
+				 break;
+			case 14: eax = atomic_read(&exit_reason_arr[14]);
+				 break;
+			case 15: eax = atomic_read(&exit_reason_arr[15]);
+				 break;
+			case 18: eax = atomic_read(&exit_reason_arr[18]);
+				 break;
+			case 19: eax = atomic_read(&exit_reason_arr[19]);
+				 break;
+			case 20: eax = atomic_read(&exit_reason_arr[20]);
+				 break;
+			case 21: eax = atomic_read(&exit_reason_arr[21]);
+				 break;
+			case 22: eax = atomic_read(&exit_reason_arr[22]);
+				 break; 
+			case 23: eax = atomic_read(&exit_reason_arr[23]);
+				 break;
+			case 24: eax = atomic_read(&exit_reason_arr[24]);
+				 break;
+			case 25: eax = atomic_read(&exit_reason_arr[25]);
+				 break;
+			case 26: eax = atomic_read(&exit_reason_arr[26]);
+				 break;
+			case 27: eax = atomic_read(&exit_reason_arr[27]);
+				 break;
+			case 28: eax = atomic_read(&exit_reason_arr[28]);
+				 break;
+			case 29: eax = atomic_read(&exit_reason_arr[29]);
+				 break;
+			case 30: eax = atomic_read(&exit_reason_arr[30]);
+				 break;
+			case 31: eax = atomic_read(&exit_reason_arr[31]);
+				 break;
+			case 32: eax = atomic_read(&exit_reason_arr[32]);
+				 break;
+			case 36: eax = atomic_read(&exit_reason_arr[36]);
+				 break;
+			case 37: eax = atomic_read(&exit_reason_arr[37]);
+				 break;
+			case 39: eax = atomic_read(&exit_reason_arr[39]);
+				 break;
+			case 40: eax = atomic_read(&exit_reason_arr[40]);
+				 break;
+			case 41: eax = atomic_read(&exit_reason_arr[41]);
+				 break;
+			case 43: eax = atomic_read(&exit_reason_arr[43]);
+				 break;
+			case 44: eax = atomic_read(&exit_reason_arr[44]);
+				 break;
+			case 45: eax = atomic_read(&exit_reason_arr[45]);
+				 break;
+			case 46: eax = atomic_read(&exit_reason_arr[46]);
+				 break;
+			case 47: eax = atomic_read(&exit_reason_arr[47]);
+				 break;
+			case 48: eax = atomic_read(&exit_reason_arr[48]);
+				 break;
+			case 49: eax = atomic_read(&exit_reason_arr[49]);
+				 break;
+			case 50: eax = atomic_read(&exit_reason_arr[50]);
+				 break;
+			case 52: eax = atomic_read(&exit_reason_arr[52]);
+				 break;
+			case 53: eax = atomic_read(&exit_reason_arr[53]);
+				 break;
+			case 54: eax = atomic_read(&exit_reason_arr[54]);
+				 break;
+			case 55: eax = atomic_read(&exit_reason_arr[55]);
+				 break;
+			case 56: eax = atomic_read(&exit_reason_arr[56]);
+				 break;
+			case 57: eax = atomic_read(&exit_reason_arr[57]);
+				 break;
+			case 58: eax = atomic_read(&exit_reason_arr[58]);
+				 break;
+			case 59: eax = atomic_read(&exit_reason_arr[59]);
+				 break;
+			case 60: eax = atomic_read(&exit_reason_arr[60]);
+				 break;
+			case 61: eax = atomic_read(&exit_reason_arr[61]);
+				 break;
+			case 62: eax = atomic_read(&exit_reason_arr[62]);
+				 break;
+			case 63: eax = atomic_read(&exit_reason_arr[63]);
+				 break;
+			case 64: eax = atomic_read(&exit_reason_arr[64]);
+				 break;
+			case 67: eax = atomic_read(&exit_reason_arr[67]);
+				 break;
+			case 68: eax = atomic_read(&exit_reason_arr[68]);
+				 break;
+			
+			case 35:
+			case 38:
+			case 42:
+			case 65: {
+					eax = 0x00000000;
+					ebx = 0x00000000;
+					ecx = 0x00000000;
+					edx = 0xFFFFFFFF;
+				 }
+				 break;
+			case 3:			
+			case 4:
+			case 5:
+			case 6: 
+			case 11:
+			case 16:
+			case 17:
+			case 33:
+			case 34:
+			case 51:
+			case 66:
+				{
+					eax = 0x00000000;
+					ebx = 0x00000000;
+					ecx = 0x00000000;
+					edx = 0x00000000;
+				}
+				break;
+
+		printk(KERN_INFO "Cpuid 0x4ffffffd : %u,%u,%u,%u", eax,ebx,ecx,edx);
+
+		} 
 	}
-	else if(eax==0x4ffffffe)
-	{
-		u64 temp = 0;
-		temp = total_time_all_exits;
-		ebx = temp >> 32;
-		ecx = temp & 0xffffffff;
+	else if(eax == 0x4ffffffe) {
+		u64 t_exit_time = 0;
+		t_exit_time = atomic_long_read(&total_exit_time);
+		eax = 0;
+		ebx = t_exit_time >>32 & 0xffffffff;
+		ecx = t_exit_time & 0xffffffff;
 		edx = 0;
+		
+		printk(KERN_INFO "Cpuid 0x4ffffffe : %u,%u,%u,%u", eax,ebx,ecx,edx);
 	}
-	else
-	{
-		kvm_cpuid(vcpu, &eax, &ebx, &ecx, &edx, false);
+	else if(eax == 0x4ffffffc) {
+		u64 t_exit_time = 0;
+		switch(ecx) {
+			case 0: 
+				t_exit_time = atomic_long_read(&exit_time[0]);
+				eax = 0;
+				ebx = t_exit_time >>32 & 0xffffffff;
+				ecx = t_exit_time & 0xffffffff;
+				edx = 0;
+				break;
+			case 1: 
+				t_exit_time = atomic_long_read(&exit_time[1]);
+				eax = 0;
+				ebx = t_exit_time >>32 & 0xffffffff;
+				ecx = t_exit_time & 0xffffffff;
+				edx = 0;
+				break;
+			case 2: 
+				t_exit_time = atomic_long_read(&exit_time[2]);
+				eax = 0;
+				ebx = t_exit_time >>32 & 0xffffffff;
+				ecx = t_exit_time & 0xffffffff;
+				edx = 0;
+				break;
+			case 7: 
+				t_exit_time = atomic_long_read(&exit_time[7]);
+				eax = 0;
+				ebx = t_exit_time >>32 & 0xffffffff;
+				ecx = t_exit_time & 0xffffffff;
+				edx = 0;
+				break;
+			case 8: 
+				t_exit_time = atomic_long_read(&exit_time[8]);
+				eax = 0;
+				ebx = t_exit_time >>32 & 0xffffffff;
+				ecx = t_exit_time & 0xffffffff;
+				edx = 0;
+				break;
+			case 9: 
+				t_exit_time = atomic_long_read(&exit_time[9]);
+				eax = 0;
+				ebx = t_exit_time >>32 & 0xffffffff;
+				ecx = t_exit_time & 0xffffffff;
+				edx = 0;
+				break;
+			case 10:
+				 t_exit_time = atomic_long_read(&exit_time[10]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 12: 
+				 t_exit_time = atomic_long_read(&exit_time[12]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 13: 
+				 t_exit_time = atomic_long_read(&exit_time[13]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 14: 
+				 t_exit_time = atomic_long_read(&exit_time[14]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 15: 
+				 t_exit_time = atomic_long_read(&exit_time[15]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 18: 
+				 t_exit_time = atomic_long_read(&exit_time[18]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 19: 
+				 t_exit_time = atomic_long_read(&exit_time[19]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 20: 
+				 t_exit_time = atomic_long_read(&exit_time[20]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 21: 
+				 t_exit_time = atomic_long_read(&exit_time[21]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 22: 
+				 t_exit_time = atomic_long_read(&exit_time[22]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break; 
+			case 23: 
+				 t_exit_time = atomic_long_read(&exit_time[23]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 24: 
+				 t_exit_time = atomic_long_read(&exit_time[24]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 25: 
+				 t_exit_time = atomic_long_read(&exit_time[25]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 26: 
+				 t_exit_time = atomic_long_read(&exit_time[26]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 27: 
+				 t_exit_time = atomic_long_read(&exit_time[27]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 28: 
+				 t_exit_time = atomic_long_read(&exit_time[28]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 29: 
+				 t_exit_time = atomic_long_read(&exit_time[29]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 30: 
+				 t_exit_time = atomic_long_read(&exit_time[30]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 31: 
+				 t_exit_time = atomic_long_read(&exit_time[31]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 32: 
+				 t_exit_time = atomic_long_read(&exit_time[32]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 36: 
+				 t_exit_time = atomic_long_read(&exit_time[36]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 37: 
+				 t_exit_time = atomic_long_read(&exit_time[37]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 39: 
+				 t_exit_time = atomic_long_read(&exit_time[39]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 40: 
+				 t_exit_time = atomic_long_read(&exit_time[40]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 41: 
+				 t_exit_time = atomic_long_read(&exit_time[41]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 43: 
+				 t_exit_time = atomic_long_read(&exit_time[43]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 44: 
+				 t_exit_time = atomic_long_read(&exit_time[44]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 45: 
+				 t_exit_time = atomic_long_read(&exit_time[45]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 46: 
+				 t_exit_time = atomic_long_read(&exit_time[46]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 47: 
+				 t_exit_time = atomic_long_read(&exit_time[47]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 48: 
+				 t_exit_time = atomic_long_read(&exit_time[48]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 49: 
+				 t_exit_time = atomic_long_read(&exit_time[49]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 50: 
+				 t_exit_time = atomic_long_read(&exit_time[50]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 52: 
+				 t_exit_time = atomic_long_read(&exit_time[52]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 53: 
+				 t_exit_time = atomic_long_read(&exit_time[53]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 54: 
+				 t_exit_time = atomic_long_read(&exit_time[54]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 55: 
+				 t_exit_time = atomic_long_read(&exit_time[55]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 56: 
+				 t_exit_time = atomic_long_read(&exit_time[56]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 57: 
+				 t_exit_time = atomic_long_read(&exit_time[57]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 58: 
+				 t_exit_time = atomic_long_read(&exit_time[58]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 59: 
+				 t_exit_time = atomic_long_read(&exit_time[59]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 60: 
+				 t_exit_time = atomic_long_read(&exit_time[60]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 61: 
+				 t_exit_time = atomic_long_read(&exit_time[61]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 62: 
+				 t_exit_time = atomic_long_read(&exit_time[62]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 63: 
+				 t_exit_time = atomic_long_read(&exit_time[63]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 64: 
+				 t_exit_time = atomic_long_read(&exit_time[64]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 67: 
+				 t_exit_time = atomic_long_read(&exit_time[67]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			case 68: 
+				 t_exit_time = atomic_long_read(&exit_time[68]);
+				 eax = 0;
+				 ebx = t_exit_time >>32 & 0xffffffff;
+				 ecx = t_exit_time & 0xffffffff;
+				 edx = 0;
+				 break;
+			
+			case 35:
+			case 38:
+			case 42:
+			case 65: 
+					eax = 0x00000000;
+					ebx = 0x00000000;
+					ecx = 0x00000000;
+					edx = 0xFFFFFFFF;
+				 
+				 break;
+			case 3:			
+			case 4:
+			case 5:
+			case 6: 
+			case 11:
+			case 16:
+			case 17:
+			case 33:
+			case 34:
+			case 51:
+			case 66:
+				
+					eax = 0x00000000;
+					ebx = 0x00000000;
+					ecx = 0x00000000;
+					edx = 0x00000000;
+				
+				break;
+
+		printk(KERN_INFO "Cpuid 0x4ffffffc : %u,%u,%u,%u", eax,ebx,ecx,edx);
+
+		} 
+	}
+	else {
+		kvm_cpuid(vcpu, &eax, &ebx, &ecx, &edx, true);
 	}
 	kvm_rax_write(vcpu, eax);
 	kvm_rbx_write(vcpu, ebx);
