@@ -177,8 +177,10 @@ Answer:
 
 Number of frequency exits increases but not with the stable rate. When the VM is idle or not performing any operation on VM then number of exits are stable. But when you perform any operation such as booting or external interrupts then number of VM exit increases significantly.
 
-Boot operation increases the number of exits significantly. Exit count is approximately 14k.
+Boot operation increases the number of exits significantly. Exit count is approximately 56k.
 
+#### Of the exit types defined in the SDM, which are the most frequent? Least?
+Answer:
+The most frequent exit type is exit number 48. The exit count is approximately 532152.
+The least frequent exit type is exit number 55. The exit count is approximately 9.
 
-
-### Output:
