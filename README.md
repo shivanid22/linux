@@ -16,6 +16,8 @@
 ### Answer: 
 Shervin- I had helped in working on fixing the issues both Shivani and I were facing with the corruption of our VMs. Thus in order to fix those issues I had spent time researching the proper configurations of how to operate nested VMs. I had also researched how to make the inner VM function correctly as we were running into issues with crashing and the inner VM not connecting to the internet. Then after researching this issues I had booted up a new VM and worked on running the linux from Shivani.  
   Shivani- Shivani helped in pinpointing the issues each of us were having with our seperate VMs. More importantly Shivani checked the functionality of the code from Assignment 3. This allowed us to re-run assignment 3 completely in the new set up VM, to make sure it was correct. This running also allowed us to remedy some issues we had with assignment 3, those issues were fixed by Shivani.  
+  
+  We both studied nested and shadow paging. We together examined the number of exits with and without ept.
 
 ### 2. Describe in detail the steps you used to complete the assignment. Consider your reader to be someone skilled in software development but otherwise unfamiliar with the assignment.
 
